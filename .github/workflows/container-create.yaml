@@ -5,27 +5,27 @@ on:
     tags:
       - '*'
 
-strategy:
-  matrix:
-    include:
-      - image-name: ${{ env.REGISTRY }}/syosetu-epubifier-backend
-        target: run-backend
-        dockerfile: ./backend/Dockerfile.backend
-      - image-name: ${{ env.REGISTRY }}/syosetu-epubifier-rqworker
-        target: run-rqworker
-        dockerfile: ./backend/Dockerfile.backend
-      - image-name: ${{ env.REGISTRY }}/syosetu-epubifier-frontend
-        dockerfile: ./backend/Dockerfile.backend
 
 jobs:
   build:
-    name: Build and push container
+    name: Build and push containers
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       id-token: write
       attestations: write
+    strategy:
+      matrix:
+        include:
+          - image-name: ${{ env.REGISTRY }}/syosetu-epubifier-backend
+            target: run-backend
+            dockerfile: ./backend/Dockerfile.backend
+          - image-name: ${{ env.REGISTRY }}/syosetu-epubifier-rqworker
+            target: run-rqworker
+            dockerfile: ./backend/Dockerfile.backend
+          - image-name: ${{ env.REGISTRY }}/syosetu-epubifier-frontend
+            dockerfile: ./backend/Dockerfile.backend
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
