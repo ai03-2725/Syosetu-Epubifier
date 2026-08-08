@@ -24,7 +24,7 @@ def start_fetch_novel_task(request: Request):
     novel_url = url_normalize(novel_url)
     
     return_value = enqueue_fetch_novel_task(novel_url)
-    return Response({"error": return_value["error"], "jobId": return_value["job_ids"]}, status=200 if return_value["error"] is None else 400, )
+    return Response({"error": return_value["error"], "jobId": return_value["job_id"]}, status=200 if return_value["error"] is None else 400, )
 
 @api_view(['GET'])
 def get_all_fetch_novel_tasks(request: Request):
