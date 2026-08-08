@@ -14,6 +14,8 @@
 - [改造版AozoraEpub3](https://github.com/kyukyunyorituryo/AozoraEpub3)ではなく[ebooklib](https://github.com/aerkalov/ebooklib/)でePubを手動作製
   - 依存ソフトは実質ChromiumブラウザとDockerベースイメージだけになり、それ以外はpipとnpmからインストールできるライブラリだけで済む
 - [Django](https://www.djangoproject.com)で作製されたバックエンドが小説を取得・保存・変換し、[Solid](https://github.com/solidjs/solid)を利用したフロントエンドがそれを制御する方式
+- Linux上での利用を想定（Dockge, Dockhand, Komodoなどでホームサーバーでの運用を想定）
+- 現状ePubのメール送信機能などは無し（SyncthingなどでePub出力フォルダの同期を想定）
 
 ## 対応しているサイト
 
@@ -39,6 +41,16 @@
 - 指定したウェブページのリストをePubへ変換
 - より人間的なブラウザ操作で小説データを取得
 - ログインなどのセキュリティを追加
+
+将来追加できたら追加したい機能
+- epubをメールでKindle・Koboへ送信（現状KindleやKoboのデバイスを所有していないのでテスト不可能）
+
+
+# テスト環境
+
+アプリ稼働：MacOS 26、AlmaLinux 10
+出力ePub閲覧：MacOS Booksアプリ、Android（Onyx Boox）上KOReaderアプリ
+
 
 # 利用方法
 1. PodmanとPodman-Compose、またはDockerとDocker-Composeをインストール

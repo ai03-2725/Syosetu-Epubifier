@@ -10,7 +10,7 @@ services:
   syosetu-epubifier-backend:
     build:
       context: ./backend/
-      dockerfile: ./backend/Dockerfile.backend
+      dockerfile: Dockerfile.backend
       target: run-backend
     container_name: syosetu-epubifier-backend
     hostname: syosetu-epubifier-backend
@@ -28,7 +28,7 @@ services:
   syosetu-epubifier-rqworker:
     build:
       context: ./backend/
-      dockerfile: ./backend/Dockerfile.backend
+      dockerfile: Dockerfile.backend
       target: run-rqworker
     container_name: syosetu-epubifier-rqworker
     hostname: syosetu-epubifier-rqworker
@@ -58,7 +58,7 @@ services:
   syosetu-epubifier-frontend:
     build:
       context: ./frontend/
-      dockerfile: ./frontend/Dockerfile.frontend
+      dockerfile: Dockerfile.frontend
     container_name: syosetu-epubifier-frontend
     hostname: syosetu-epubifier-frontend
     ports: 
