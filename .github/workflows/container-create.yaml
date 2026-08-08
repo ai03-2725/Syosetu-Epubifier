@@ -20,12 +20,12 @@ jobs:
         include:
           - image-name: syosetu-epubifier-backend
             target: run-backend
-            dockerfile: ./backend/Dockerfile.backend
+            dockerfile: backend/Dockerfile.backend
           - image-name: syosetu-epubifier-rqworker
             target: run-rqworker
-            dockerfile: ./backend/Dockerfile.backend
+            dockerfile: backend/Dockerfile.backend
           - image-name: syosetu-epubifier-frontend
-            dockerfile: ./backend/Dockerfile.backend
+            dockerfile: frontend/Dockerfile.frontend
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
