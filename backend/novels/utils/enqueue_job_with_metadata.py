@@ -11,6 +11,7 @@ from novels.tasks.syosetu_org.process.generate_epub import generate_epub_syosetu
 from novels.utils.determine_novel_source import NovelSources, determine_novel_source
     
 THREE_DAYS_IN_SECONDS = 60 * 60 * 24 * 3
+THREE_HOURS_IN_SECONDS = 60 * 60 * 3
     
 class JobIdAndError(TypedDict):
     job_id: str | None
@@ -39,7 +40,7 @@ def enqueue_fetch_novel_task(source_url: str) -> JobIdAndError:
     
     match(novel_source["source"]):
         case NovelSources.SYOSETU_ORG:
-            enqueued_task = django_rq.enqueue(fetch_new_novel_syosetu_org, novel_source["id"], result_ttl=THREE_DAYS_IN_SECONDS)
+            enqueued_task = django_rq.enqueue(fetch_new_novel_syosetu_org, novel_source["id"], result_ttl=THREE_DAYS_IN_SECONDS, job_timeout=THREE_HOURS_IN_SECONDS)
             enqueued_task.meta["enqueued_at"] = datetime.now()
             enqueued_task.meta["task_type"] = "fetch_new_novel"
             enqueued_task.meta["source_url"] = source_url
@@ -74,7 +75,7 @@ def enqueue_update_novel_tasks(novel_ids: list[int] | bool, allow_delete: bool) 
         novel_source = determine_novel_source(novel.source)
         match(novel_source["source"]):
             case NovelSources.SYOSETU_ORG:
-                enqueued_task = django_rq.enqueue(update_existing_novel_syosetu_org, novel_source["id"], allow_delete, result_ttl=THREE_DAYS_IN_SECONDS)
+                enqueued_task = django_rq.enqueue(update_existing_novel_syosetu_org, novel_source["id"], allow_delete, result_ttl=THREE_DAYS_IN_SECONDS, job_timeout=THREE_HOURS_IN_SECONDS)
                 enqueued_task.meta["enqueued_at"] = datetime.now()
                 enqueued_task.meta["task_type"] = "update_existing_novel"
                 enqueued_task.meta["novel_id"] = novel.id
