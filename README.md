@@ -43,4 +43,5 @@
 # 利用方法
 1. PodmanとPodman-Compose、またはDockerとDocker-Composeをインストール
 1. `compose-template-local.yaml`を`compose.yaml`へ複製し、`SECRET_KEY`を変更
+1. アプリデータフォルダを作製（`prepare-data-dirs-linux/mac.sh`を参照）
 1. `podman/docker compose up`
