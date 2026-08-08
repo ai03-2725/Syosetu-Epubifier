@@ -38,3 +38,9 @@
 - 自動更新設定
 - 指定したウェブページのリストをePubへ変換
 - より人間的なブラウザ操作で小説データを取得
+- ログインなどのセキュリティを追加
+
+# 利用方法
+1. PodmanとPodman-Compose、またはDockerとDocker-Composeをインストール
+1. `compose-template-local.yaml`を`compose.yaml`へ複製し、`SECRET_KEY`を変更
+1. `podman/docker compose up`
