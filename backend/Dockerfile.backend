@@ -1,0 +1,88 @@
+# Based on https://www.docker.com/blog/how-to-dockerize-django-app/
+
+# =====
+# Deps stage
+# =====
+FROM python:3.14-slim-trixie AS deps
+
+# Install requirements for pydoll
+RUN apt-get update && apt-get install -y \
+    chromium \
+    chromium-driver \
+    xvfb \
+    git \
+    wget \
+    gnupg \
+    ca-certificates \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# =====
+# Build stage
+# =====
+
+FROM deps AS build
+
+# Make app directories and set environment variables
+RUN mkdir /app
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Upgrade pip
+RUN pip install --upgrade pip 
+ 
+# Install requirements 
+COPY requirements.txt  /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy app files in
+COPY . /app/
+
+
+# =====
+# Run stage base image
+# =====
+FROM deps AS run-base
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV USE_CHROMIUM=True
+
+# Create app runner user
+RUN groupadd -g 1001 appuser && \
+  useradd -u 1001 -g 1001 -m appuser && \
+  mkdir /app && \
+  chown -R appuser /app
+
+# Copy the Python dependencies from the build stage
+COPY --from=build /usr/local/lib/python3.14/site-packages/ /usr/local/lib/python3.14/site-packages/
+COPY --from=build /usr/local/bin/ /usr/local/bin/
+
+# Copy app files
+WORKDIR /app
+COPY . .
+RUN chown -R appuser:appuser /app
+
+
+# =====
+# Run stage for backend 
+# =====
+FROM run-base AS run-backend
+
+USER appuser
+CMD bash run-backend-prod.sh
+
+
+# =====
+# Run stage for rqworker 
+# =====
+FROM run-base AS run-rqworker
+
+RUN mkdir -p /tmp/.X11-unix
+RUN chmod 1777 /tmp/.X11-unix
+
+USER appuser
+ENV DISPLAY=:99
+CMD Xvfb :99 -screen 0 1920x1080x24 & bash run-rqworker.sh

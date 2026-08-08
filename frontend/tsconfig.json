@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "types": ["unplugin-icons/types/solid"],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+
+  }
+}

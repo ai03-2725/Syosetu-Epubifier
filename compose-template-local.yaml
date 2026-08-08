@@ -1,0 +1,67 @@
+# !!!
+# このファイルを直接編集しないでください
+# compose.yamlへコピーしてから編集してください
+# !!!
+x-common-env: &shared-secret-key
+  # https://djecrety.ir でDjangoのSECRET_KEYを生成してください
+  SECRET_KEY: 'INSECURE-please-set-your-own-secret-key-here'
+
+services:
+  syosetu-epubifier-backend:
+    build:
+      context: ./backend/
+      dockerfile: ./backend/Dockerfile.backend
+      target: run-backend
+    container_name: syosetu-epubifier-backend
+    hostname: syosetu-epubifier-backend
+    depends_on:
+      - valkey
+    ports:
+      - 13912:13912
+    restart: unless-stopped
+    environment:
+      <<: *shared-secret-key
+      DEBUG: 'False'
+    volumes:
+      - ./app_data/backend_media:/app/db_media:z
+      - ./app_data/backend_db:/app/db_sqlite:z
+  syosetu-epubifier-rqworker:
+    build:
+      context: ./backend/
+      dockerfile: ./backend/Dockerfile.backend
+      target: run-rqworker
+    container_name: syosetu-epubifier-rqworker
+    hostname: syosetu-epubifier-rqworker
+    depends_on:
+      - valkey
+      - syosetu-epubifier-backend
+    environment:
+      <<: *shared-secret-key
+      DEBUG: 'False'
+    volumes:
+      - ./app_data/backend_media:/app/db_media:z
+      - ./app_data/backend_db:/app/db_sqlite:z
+    ports:
+      - 8000:80
+    restart: unless-stopped
+  valkey:
+    image: docker.io/bitnami/valkey:latest
+    container_name: syosetu-epubifier-valkey
+    hostname: syosetu-epubifier-valkey
+    restart: unless-stopped
+    volumes:
+      - ./app_data/valkey_persistent:/bitnami/valkey/data:z
+    environment:
+      ALLOW_EMPTY_PASSWORD: yes
+    ports:
+      - 6379:6379
+  syosetu-epubifier-frontend:
+    build:
+      context: ./frontend/
+      dockerfile: ./frontend/Dockerfile.frontend
+    container_name: syosetu-epubifier-frontend
+    hostname: syosetu-epubifier-frontend
+    ports: 
+      - 13913:80
+  
+networks: {}
