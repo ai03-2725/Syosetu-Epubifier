@@ -60,6 +60,7 @@
 # バグリスト
 - 小説追加タスクが反映されなくなる
 - enqueued_atが存在しない場合がある（generate_epub）
+- queue pending状態のfetchタスクが表示されない
 
 
 # 利用方法

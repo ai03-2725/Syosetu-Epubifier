@@ -22,7 +22,7 @@ def is_symbol_divider(tag: Tag):
     
     if tag is None:
         return False
-    return tag.name == 'p' and is_only_divider_symbols(tag.get_text())
+    return tag.name == 'p' and is_only_divider_symbols(tag.get_text().strip())
 
 def is_hr_divider(tag: Tag):
     if tag is None:

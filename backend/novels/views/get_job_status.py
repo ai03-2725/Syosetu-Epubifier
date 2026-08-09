@@ -26,6 +26,8 @@ def get_job_status(request: Request):
     job_log = job.meta.get("log", "")
     job_status = job.get_status()
     
+    print(job.meta)
+    
     response_object = {
         "job_id": job_id, 
         "status": job_status, 
