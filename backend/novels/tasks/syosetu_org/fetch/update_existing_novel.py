@@ -283,7 +283,7 @@ async def _update_novel(id: int, allow_delete: bool):
     
     # If any changes occurred, enqueue an epub gneeration
     if novel_details_changed or len(chapters_pending_push) > 0 or len(episodes_pending_push) > 0 or len(deleted_chapters) > 0 or len(deleted_episodes) > 0:
-        enqueue_generate_epub_task_async(db_novel.id)
+        await enqueue_generate_epub_task_async(db_novel.id)
         
         
         
