@@ -8,8 +8,7 @@ def append_to_job_log(msg: str):
     Append text to the rq job meta log object
     Also logs the message if settings.LOG_DEBUG is True
     """
-    if settings.LOG_DEBUG:
-        print(msg)
+    print(msg)
     job = get_current_job()
     if job:
         if type(job.meta.get('log')) is not str:
