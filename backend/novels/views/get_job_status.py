@@ -24,7 +24,7 @@ def get_job_status(request: Request):
         return Response({"error": "指定されたjobIdは見つかりませんでした。"}, status=404)
     
     job_log = job.meta.get("log", "")
-    job_status = job.get_status()    
+    job_status = job.get_status()
     
     response_object = {
         "job_id": job_id, 
