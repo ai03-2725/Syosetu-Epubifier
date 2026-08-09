@@ -41,7 +41,6 @@ def enqueue_update_novel_tasks(novel_ids: list[int] | bool, allow_delete: bool) 
                 enqueued_task.meta["task_type"] = "update_existing_novel"
                 enqueued_task.meta["novel_id"] = novel.id
                 enqueued_task.save()
-                time.sleep(1)
                 job_ids.append(enqueued_task.id)
             case _:
                 return {"job_ids": None, "error": f"小説ID{novel.id}の取得先を判別できませんでした"}

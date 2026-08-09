@@ -34,7 +34,6 @@ def enqueue_fetch_novel_task(source_url: str) -> JobIdAndError:
             enqueued_task.meta["task_type"] = "fetch_new_novel"
             enqueued_task.meta["source_url"] = source_url
             enqueued_task.save()
-            time.sleep(1)
             return {"job_id": enqueued_task.id, "error": None}
             
         case _: 

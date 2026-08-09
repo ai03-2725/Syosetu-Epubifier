@@ -17,7 +17,7 @@ from novels.tasks.syosetu_org.fetch.fetch_novel_index_page import fetch_novel_in
 from novels.tasks.syosetu_org.fetch.fetch_novel_details_page import fetch_novel_details_page
 from novels.tasks.syosetu_org.process.generate_epub import generate_epub_syosetu_org
 from novels.utils.append_to_job_log import append_to_job_log
-from novels.utils.enqueue_generate_epub_with_metadata import enqueue_generate_epub_task
+from novels.utils.enqueue_generate_epub_with_metadata import enqueue_generate_epub_task_async
 from novels.utils.get_children import get_chapters_of_novel_async
 from novels.models import Novel, Chapter, Episode
 from pydoll.browser.options import ChromiumOptions
@@ -164,7 +164,7 @@ async def _fetch_new_novel(id: int):
     await browser.stop()
     
     # Enqueue an epub gneeration
-    enqueue_generate_epub_task(db_novel.id)
+    await enqueue_generate_epub_task_async(db_novel.id)
         
     return 
     
