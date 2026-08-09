@@ -20,6 +20,7 @@ from novels.tasks.syosetu_org.fetch.fetch_novel_details_page import fetch_novel_
 from novels.tasks.syosetu_org.process.generate_epub import generate_epub_syosetu_org
 from novels.tasks.syosetu_org.types import DraftChapter, DraftEpisode
 from novels.utils.append_to_job_log import append_to_job_log
+from novels.utils.enqueue_generate_epub_with_metadata import enqueue_generate_epub_task
 from novels.utils.get_children import get_chapters_of_novel_async, get_episodes_of_novel_async, get_episodes_of_novel_with_chapters_async
 from novels.models import Novel, Chapter, Episode
 from pydoll.browser.options import ChromiumOptions
@@ -282,7 +283,8 @@ async def _update_novel(id: int, allow_delete: bool):
     
     # If any changes occurred, enqueue an epub gneeration
     if novel_details_changed or len(chapters_pending_push) > 0 or len(episodes_pending_push) > 0 or len(deleted_chapters) > 0 or len(deleted_episodes) > 0:
-        enqueued_task = django_rq.enqueue(generate_epub_syosetu_org, db_novel.id, result_ttl=43200)
+        enqueue_generate_epub_task(db_novel.id)
+        
         
         
     return 

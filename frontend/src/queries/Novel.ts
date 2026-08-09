@@ -40,7 +40,11 @@ export async function toggleNovelFrozenState(novel: Novel): Promise<Novel> {
         status: novelBackendStatusToJaStr(entry.status),
         lastUpdatedTimestamp: new Date(entry.last_updated_timestamp),
         lastFetchTimestamp: new Date(entry.last_fetch_timestamp),
-        frozen: entry.frozen
+        frozen: entry.frozen,
+
+        postprocessReduceBlankLines: entry.postprocess_reduce_blank_lines,
+        postprocessIndentSeparators: entry.postprocess_indent_separators,
+        postprocessReplaceHrs: entry.postprocess_replace_hrs
       }
     })
 }

@@ -5,7 +5,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from url_normalize import url_normalize
 
-from novels.utils.enqueue_job_with_metadata import enqueue_fetch_novel_task
+from novels.utils.enqueue_fetch_novel_with_metadata import enqueue_fetch_novel_task
 from novels.utils.get_all_job_ids import get_all_job_ids
 
 

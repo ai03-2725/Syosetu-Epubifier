@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from novels.utils.enqueue_job_with_metadata import enqueue_update_novel_tasks
+from novels.utils.enqueue_update_novel_with_metadata import enqueue_update_novel_tasks
 from novels.utils.get_all_job_ids import get_all_job_ids
 
 

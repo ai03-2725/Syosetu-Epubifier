@@ -72,7 +72,8 @@ RUN chown -R appuser:appuser /app
 FROM run-base AS run-backend
 
 USER appuser
-CMD bash run-backend-prod.sh
+# CMD bash run-backend-prod.sh
+CMD bash run-backend-dev.sh
 
 
 # =====

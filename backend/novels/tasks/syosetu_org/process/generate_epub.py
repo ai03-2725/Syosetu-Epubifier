@@ -12,6 +12,9 @@ from pathvalidate import sanitize_filename
 from url_normalize import url_normalize
 
 from novels.models import EpubFile, Novel
+from novels.postprocess_common.cleanup_empty_lines import cleanup_empty_lines
+from novels.postprocess_common.indent_separators import indent_separators
+from novels.postprocess_common.replace_hrs import replace_hrs
 from novels.tasks.syosetu_org.process.cleanup_html import cleanup_html
 from novels.tasks.syosetu_org.process.prettify_html import prettify_html
 from novels.tasks.syosetu_org.process.replace_image_urls import replace_image_urls
@@ -67,26 +70,52 @@ async def _generate_epub(novel_id: int):
     # Chapter 1 onwards = nest its episodes below
     toc_lookup_table: dict[int, list[epub.EpubHtml]] = {}
     
+    current_chapter = 0
+    current_file_number = 0
+    
     # Convert episodes
     for episode in db_episodes:
         
+        # Insert chapter cover page if chapter changed
+        if episode.chapter.chapter_number != current_chapter:
+            chapter_cover_episode = epub.EpubHtml(title=episode.chapter.chapter_title, file_name=f"{current_file_number:04d}.xhtml", lang="ja")
+            chapter_cover_episode.content = f'<p><br/></p><small>{db_novel.title}</small><h2>{episode.chapter.chapter_title}</h2>' 
+            chapter_cover_episode.add_item(default_css_epubitem)
+            book.add_item(chapter_cover_episode)
+            book.spine.append(chapter_cover_episode)
+            
+            # Update current chapter tracker
+            current_chapter = episode.chapter.chapter_number
+            
+            # Increment filename counter
+            current_file_number += 1
+        
         # Add the content itself
-        ebook_episode = epub.EpubHtml(title=episode.episode_title, file_name=f"{episode.episode_number:04d}.xhtml", lang="ja")
+        ebook_episode = epub.EpubHtml(title=episode.episode_title, file_name=f"{current_file_number:04d}.xhtml", lang="ja")
         ebook_episode.add_item(default_css_epubitem)
         book.add_item(ebook_episode)
         
         # Add title heading to beginning of episode
-        prefixed_contents = episode.contents
-        prefixed_contents = f'<h2>{episode.episode_title}</h2></div><p><br/></p><p><br/></p>' + prefixed_contents
+        processed_html = episode.contents
+        processed_html = f'<h2>{episode.episode_title}</h2></div><p><br/></p><p><br/></p>' + processed_html
         if episode.chapter.chapter_number > 0:
-            prefixed_contents = f'<small>{episode.chapter.chapter_title}</small>' + prefixed_contents
+            processed_html = f'<small>{episode.chapter.chapter_title}</small>' + processed_html
+        
+        # Post-processing based on novel settings
+        if db_novel.postprocess_reduce_blank_lines:
+            processed_html = cleanup_empty_lines(processed_html)
+        if db_novel.postprocess_indent_separators:
+            processed_html = indent_separators(processed_html)
+        if db_novel.postprocess_replace_hrs:
+            processed_html = replace_hrs(processed_html)
             
         # Cleanup the raw content HTML
-        cleaned_html = cleanup_html(prefixed_contents)
+        processed_html = cleanup_html(processed_html)
+        
         append_to_job_log(f"{str(episode.episode_number)}話の内容を確認中")
         
         # Handle embedded images
-        embedded_images = await replace_image_urls(cleaned_html)
+        embedded_images = await replace_image_urls(processed_html)
         if embedded_images is not None:
             new_content, involved_images = embedded_images
             ebook_episode.content = prettify_html(new_content)
@@ -96,7 +125,7 @@ async def _generate_epub(novel_id: int):
                 ebook_image = epub.EpubImage(uid=f"image_{image.image_file.name}", file_name=f"Images/{image.image_file.name}", content=image_content, media_type=media_type) 
                 book.add_item(ebook_image)
         else:
-            ebook_episode.content = prettify_html(cleaned_html)
+            ebook_episode.content = prettify_html(processed_html)
             
         # Add episode to spine
         book.spine.append(ebook_episode)
@@ -107,6 +136,9 @@ async def _generate_epub(novel_id: int):
             toc_lookup_table[episode.chapter.chapter_number] = []
         # Then append
         toc_lookup_table[episode.chapter.chapter_number].append(ebook_episode)
+        
+        # Increment file number for next addition
+        current_file_number += 1
             
     # Convert ToC lookup table into actual ToC
     # Start with chapter 0 (uncategorized) - specify by number just in case negative indices get added in the future
