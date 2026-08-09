@@ -13,7 +13,7 @@ def replace_hrs(text: str):
     
     for hr in soup.find_all("hr"):
         divider_alt = soup.new_tag("p")
-        divider_alt.string = "　　ーーー"
+        divider_alt.string = "　─────"
         hr.replace_with(divider_alt) 
         
     return str(soup)
