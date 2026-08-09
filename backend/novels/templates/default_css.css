@@ -2,12 +2,14 @@
 
 body {
   font-family: serif;
-  line-height: 1.75;
+  line-height: 1.8;
   word-spacing: normal;
   letter-spacing: normal;
   white-space: normal;
   word-wrap: break-word;
   -epub-word-break: normal;
+  margin: 0;
+  padding: 0;
 }
 
 img { 
@@ -27,6 +29,7 @@ p {
   display: block;
   margin: 0;
   padding: 0;
-  margin-block-start: 1em;
-  margin-block-end: 1em;
+  /* margin-block-start: 1em; */
+  /* margin-block-end: 1em; */
+  margin-bottom: 0;
 }
