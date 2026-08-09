@@ -25,14 +25,13 @@ def get_job_status(request: Request):
     
     job_log = job.meta.get("log", "")
     job_status = job.get_status()    
-    enqueued_at_timestamp: datetime = job.meta.get("enqueued_at")
     
     response_object = {
         "job_id": job_id, 
         "status": job_status, 
         "task_type": job.meta.get("task_type"), 
         "log": job_log,
-        "enqueued_at": enqueued_at_timestamp.isoformat()
+        "enqueued_at": job.meta.get("enqueued_at").isoformat()
     }
     
     return Response(response_object, status=200)
