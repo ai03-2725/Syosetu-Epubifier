@@ -57,6 +57,11 @@
 出力ePub閲覧：MacOS Booksアプリ、Android（Onyx Boox）上KOReaderアプリ
 
 
+# バグリスト
+- 小説追加タスクが反映されなくなる
+- enqueued_atが存在しない場合がある（generate_epub）
+
+
 # 利用方法
 1. PodmanとPodman-Compose、またはDockerとDocker-Composeをインストール
 1. `compose-template-local.yaml`を`compose.yaml`へ複製し、`SECRET_KEY`を変更

@@ -27,7 +27,6 @@ def cleanup_empty_lines(text: str):
         if tag.name == 'p' and not tag.get_text().strip():
             # If element is a blank p, add it to the currently tracked list of consecutive blank ps
             current_group.append(tag)
-            print(f"Found empty tag: {tag}")
         else:
             # If reached an element that isn't a blank p, check how many consecutive ones were found
             # If more than 0, process them
@@ -39,7 +38,6 @@ def cleanup_empty_lines(text: str):
                 element_following_blanks = tag
                 if is_symbol_divider(element_preceding_blanks) or is_symbol_divider(element_following_blanks) or is_hr_divider(element_preceding_blanks) or is_hr_divider(element_following_blanks):
                     num_lines_to_keep = max(1, num_lines_to_keep)
-                    print(f"Found divider: {element_preceding_blanks} or {element_following_blanks}")
                 # Using this value, remove unnecessary whitespaces
                 for p in current_group[num_lines_to_keep:]:
                     p.decompose()
