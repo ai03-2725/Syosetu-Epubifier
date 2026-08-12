@@ -83,6 +83,7 @@ async def _update_novel(id: int, allow_delete: bool):
     options.page_load_state = PageLoadState.COMPLETE
     if settings.PYDOLL_USE_CHROMIUM:
             options.binary_location = '/usr/bin/chromium'
+    options.start_timeout = 20
     browser = Chrome(options=options)
     # Start a new browser tab
     tab = await browser.start()

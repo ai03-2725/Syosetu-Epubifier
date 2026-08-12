@@ -73,6 +73,7 @@ RUN chown -R appuser:appuser /app
 FROM run-base AS run-backend
 
 USER appuser
+ENV USE_CHROMIUM=True
 CMD bash run-backend-prod.sh
 
 
@@ -86,4 +87,5 @@ RUN chmod 1777 /tmp/.X11-unix
 
 USER appuser
 ENV DISPLAY=:99
+ENV USE_CHROMIUM=True
 CMD Xvfb :99 -screen 0 1920x1080x24 & bash run-rqworker.sh
