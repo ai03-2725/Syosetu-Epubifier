@@ -28,7 +28,8 @@ async def fetch_embedded_images(tab: Tab, episodes: list[DraftEpisode]) -> dict[
     image_hrefs_table: dict[int, list[str]] = {}
     append_to_job_log(f'押絵の検出中')
     for episode in episodes:
-        found_image_urls = find_embedded_images(episode["contents"])
+        soup = BeautifulSoup(episode['contents'], 'html.parser')
+        found_image_urls = find_embedded_images(soup)
         if len(found_image_urls) > 0:
             image_hrefs_table[episode["episode_number"]] = found_image_urls
         

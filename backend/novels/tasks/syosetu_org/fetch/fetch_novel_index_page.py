@@ -47,14 +47,14 @@ async def fetch_novel_index_page(tab: Tab, id: int) -> tuple[list[DraftChapter],
     
     # Get title/author/etc out of first ss div
     details_div = ss_divs[0]
-    title_text = details_div.find('span', attrs={"itemprop": "title"}).get_text(strip=True)
+    title_text = details_div.find('span', attrs={"itemprop": "name"}).get_text(strip=True)
     author_text = details_div.find('span', attrs={"itemprop": "author"}).get_text(strip=True)
     genre_text = details_div.find('span', attrs={"itemprop": "genre"}).get_text(strip=True)
     # Iterate over tag tags
     tags_list = [ genre_text ]
     current_tag_node = details_div.find(string="タグ：")
     while True:
-        current_tag_node = current_tag_node.find_next()
+        current_tag_node = current_tag_node.find_next_sibling()
         if current_tag_node.name == "a" or current_tag_node.name == "span":
             tags_list.append(current_tag_node.get_text(strip=True))
         else:

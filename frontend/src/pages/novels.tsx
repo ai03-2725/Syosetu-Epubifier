@@ -216,7 +216,7 @@ function NovelsPage() {
                     <th scope="col" data-sort>タイトル</th>
                     <th scope="col" data-sort>作者</th>
                     <th scope="col" data-sort>URL</th>
-                    <th scope="col" data-sort="number">タグ</th>
+                    <th scope="col">タグ</th>
                     <th scope="col" data-sort="date">取得日</th>
                     <th scope="col" data-sort="date">更新日</th>
                     <th scope="col">更新</th>
@@ -228,10 +228,10 @@ function NovelsPage() {
                 <tbody>
                   <For each={novelsQuery.data}>
                   {((novel) => (
-                    <tr data-filter-text={`${novel.title} ${novel.author}`}>
+                    <tr data-filter-text={`${novel.title} ${novel.author} ${novel.source} ${novel.tags.join(" ")}`}>
                       <td><input type="checkbox" data-table-select-row value={novel.id} aria-label={`「${novel.title}」を選択`} /></td>
-                      <td data-sort-value={novel.title}>{novel.title}</td>
-                      <td data-sort-value={novel.author}>{novel.author}</td>
+                      <td data-sort-value={novel.title} style="max-width: 250px;">{novel.title}</td>
+                      <td data-sort-value={novel.author} style="max-width: 200px;">{novel.author}</td>
                       <td data-sort-value={novel.source}>
                           <menu class="buttons">
                           <li style="margin-bottom: 0px;"><button class="outline" onClick={() => window.open(novel.source, '_blank')}><IconLink style="vertical-align: middle" /></button></li>
@@ -239,7 +239,7 @@ function NovelsPage() {
                         </menu>
                         
                       </td>
-                      <td data-sort-value={JSON.stringify(novel.tags)}>
+                      <td style="max-width: 250px;">
                         {novel.frozen && <><span class="badge" data-variant="warning">凍結中</span></>}
                         <For each={novel.tags}>
                           {((tag) => (
