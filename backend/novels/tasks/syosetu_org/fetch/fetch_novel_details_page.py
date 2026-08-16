@@ -6,13 +6,13 @@ from pydoll.browser.tab import Tab
 from novels.tasks.syosetu_org.fetch.fetch_path_with_tab import fetch_path_with_tab
 from novels.utils.append_to_job_log import append_to_job_log
 
-from novels.models import NovelStatusChoices
+# from novels.models import NovelStatusChoices
 
 
 class FetchNovelDetailsReturnType(NamedTuple):
     title: str
     author: str
-    status: NovelStatusChoices
+    # status: NovelStatusChoices
 
 async def fetch_novel_details_page(tab: Tab, id: int) -> FetchNovelDetailsReturnType:
     """
@@ -38,18 +38,19 @@ async def fetch_novel_details_page(tab: Tab, id: int) -> FetchNovelDetailsReturn
     author_label_td = soup.find('td', string="作者")
     author = author_label_td.find_next_sibling('td').get_text()
     
-    status_label_td = soup.find('td', string="話数")
-    status_raw = status_label_td.find_next_sibling('td').get_text()
+    # status_label_td = soup.find('td', string="話数")
+    # status_raw = status_label_td.find_next_sibling('td').get_text()
     
-    status: NovelStatusChoices = NovelStatusChoices.ACTIVE.name
-    if "連載中" in status_raw:
-        status = NovelStatusChoices.ACTIVE.name
-    elif "完結" in status_raw:
-        status = NovelStatusChoices.COMPLETED.name
-    elif "未完" in status_raw:
-        status = NovelStatusChoices.ABANDONED.name
-    else:
-        raise Exception(f"Unknown novel status in string {status_raw}")
+    # status: NovelStatusChoices = NovelStatusChoices.ACTIVE.name
+    # if "連載中" in status_raw:
+    #     status = NovelStatusChoices.ACTIVE.name
+    # elif "完結" in status_raw:
+    #     status = NovelStatusChoices.COMPLETED.name
+    # elif "未完" in status_raw:
+    #     status = NovelStatusChoices.ABANDONED.name
+    # else:
+        # raise Exception(f"Unknown novel status in string {status_raw}")
     
     append_to_job_log(f"小説情報の取得完了")    
-    return FetchNovelDetailsReturnType(title=title, author=author, status=status)
+    # return FetchNovelDetailsReturnType(title=title, author=author, status=status)
+    return FetchNovelDetailsReturnType(title=title, author=author)

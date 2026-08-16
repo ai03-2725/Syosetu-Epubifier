@@ -3,10 +3,10 @@ from typing import Literal
 
 from django.db import models
 
-class NovelStatusChoices(Enum):
-    ACTIVE = "連載中"
-    COMPLETED = "完結"
-    ABANDONED = "未完"
+# class NovelStatusChoices(Enum):
+#     ACTIVE = "連載中"
+#     COMPLETED = "完結"
+#     ABANDONED = "未完"
 
 
 class Novel(models.Model):
@@ -14,7 +14,8 @@ class Novel(models.Model):
     title = models.TextField(db_comment="Novel title")
     author = models.TextField(db_comment="Author name")
     source = models.TextField(db_comment="Source URL", unique=True)
-    status = models.TextField(db_comment="Novel status (i.e. actively being written, completed, etc.)", choices=[(choice.name, choice.value) for choice in NovelStatusChoices])
+    # status = models.TextField(db_comment="Novel status (i.e. actively being written, completed, etc.)", choices=[(choice.name, choice.value) for choice in NovelStatusChoices])
+    tags = models.JSONField(default=list, db_comment="List of ovel tags as strings (if any; empty list if none or not supported)")
     last_updated_timestamp = models.DateTimeField(db_comment="The last known timestamp at which this novel was modified by the author")
     last_fetch_timestamp = models.DateTimeField(db_comment="The last timestamp at which this novel was fetched/rescanned")
     frozen = models.BooleanField(default=False, db_comment="Whether fetching for this novel has been disabled or not")

@@ -10,7 +10,6 @@ import datetime
 
 from pydoll.browser.chromium import Chrome
 
-from novels.tasks.syosetu_org.fetch.fetch_novel_details_page import fetch_novel_details_page
 from pydoll.browser.options import ChromiumOptions
 from pydoll.constants import PageLoadState
 

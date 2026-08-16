@@ -10,7 +10,7 @@ from novels.tasks.syosetu_org.fetch.fetch_path_with_tab import fetch_path_with_t
 async def fetch_novel_index_page(tab: Tab, id: int) -> tuple[list[DraftChapter], list[DraftEpisode]]:
     """
     Fetches novel index page (i.e. the one with all the chapters listed)
-    Returns a list of Chapters and Episodes
+    Returns a tuple of (title, author, tags, Chapters, Episodes)
     """
     
     # Create working copy of found chapters/episodes to build and return
@@ -27,6 +27,12 @@ async def fetch_novel_index_page(tab: Tab, id: int) -> tuple[list[DraftChapter],
     
     # Get index page contents
     # Structure: Updated 2026-07-31
+    # First div occurrence with class "ss" -> 
+    #   - Span with attr itemprop="name" = Title
+    #   - Div -> loose text "作者：" and span with attr itemprop="author" with author name inside
+    #   - Span with attr itemprop="genre" = Derivative source (原作： or オリジナル：)
+    #   - Loose text "タグ：" is followed by a mix of <a>s and <span>s at the same level for tags (look until a br which separates taglist from an a with text "▼下部メニューに飛ぶ")
+    # 
     # Second div occurrence with class "ss" -> contents = Novel overview text
     # Ul with class "episode-list__items" = list of contents; children are either
     #   - Li of class "episode-list__item" -> a = Episode
@@ -37,7 +43,25 @@ async def fetch_novel_index_page(tab: Tab, id: int) -> tuple[list[DraftChapter],
     #   - Li of class "episode-list__chapter" -> div of class "episode-list__chapter-title" = Chapter
     #     - inner text of div is chapter title
     
-    overview_div = soup.find_all('div', class_="ss")[1] # Overview is stored in the second div with class "ss"
+    ss_divs = soup.find_all('div', class_="ss")
+    
+    # Get title/author/etc out of first ss div
+    details_div = ss_divs[0]
+    title_text = details_div.find('span', attrs={"itemprop": "title"}).get_text(strip=True)
+    author_text = details_div.find('span', attrs={"itemprop": "author"}).get_text(strip=True)
+    genre_text = details_div.find('span', attrs={"itemprop": "genre"}).get_text(strip=True)
+    # Iterate over tag tags
+    tags_list = [ genre_text ]
+    current_tag_node = details_div.find(string="タグ：")
+    while True:
+        current_tag_node = current_tag_node.find_next()
+        if current_tag_node.name == "a" or current_tag_node.name == "span":
+            tags_list.append(current_tag_node.get_text(strip=True))
+        else:
+            break
+    
+    # Get overview text from second ss div
+    overview_div = ss_divs[1] # Overview is stored in the second div with class "ss"
     overview_raw = overview_div.decode_contents() # Obtain inner HTML as string
     overview = overview_raw.removesuffix('<hr style="margin:20px 0px;">') # Clear out trailing hr
     # Add novel URL to overview text for parity with narou.rb format
@@ -141,7 +165,7 @@ async def fetch_novel_index_page(tab: Tab, id: int) -> tuple[list[DraftChapter],
     # Finished checking table of contents
     # Return found chapters and episodes
     append_to_job_log(f"目次の取得が完了 - 全{len(draft_episodes) - 1}話") # Account for the added overview page
-    return (draft_chapters, draft_episodes)
+    return (title_text, author_text, tags_list, draft_chapters, draft_episodes)
             
 
 

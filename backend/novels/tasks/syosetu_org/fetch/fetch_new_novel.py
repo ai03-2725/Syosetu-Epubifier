@@ -14,8 +14,6 @@ from rq.job import JobStatus
 from novels.tasks.syosetu_org.fetch.fetch_embedded_images import fetch_embedded_images
 from novels.tasks.syosetu_org.fetch.fetch_episode_contents import fetch_episode_contents
 from novels.tasks.syosetu_org.fetch.fetch_novel_index_page import fetch_novel_index_page
-from novels.tasks.syosetu_org.fetch.fetch_novel_details_page import fetch_novel_details_page
-from novels.tasks.syosetu_org.process.generate_epub import generate_epub_syosetu_org
 from novels.utils.append_to_job_log import append_to_job_log
 from novels.utils.enqueue_generate_epub_with_metadata import enqueue_generate_epub_task_async
 from novels.utils.get_children import get_chapters_of_novel_async
@@ -66,26 +64,26 @@ async def _fetch_new_novel(id: int):
     
     # Fetch novel details 
     new_last_fetch_timestamp = datetime.datetime.now()
+    # try:
+    #     novel_details = await fetch_novel_details_page(tab, id)
+    # except:
+    #     await browser.stop()
+    #     raise
+    
+    # Fetch novel index page to obtain a list of draft chapters
     try:
-        novel_details = await fetch_novel_details_page(tab, id)
+        (title, author, tags, draft_chapters, draft_episodes) = await fetch_novel_index_page(tab, id)
     except:
         await browser.stop()
         raise
     
     # Update the draft copy novel with newest info
-    db_novel.title = novel_details.title
-    db_novel.author = novel_details.author
+    db_novel.title = title
+    db_novel.author = author
     db_novel.source = url_normalize(f"https://syosetu.org/novel/{str(id)}/")
-    db_novel.status = novel_details.status
+    db_novel.tags = tags
     db_novel.last_fetch_timestamp = new_last_fetch_timestamp
     append_to_job_log(f"小説情報の取得完了")
-    
-    # Fetch novel index page to obtain a list of draft chapters
-    try:
-        (draft_chapters, draft_episodes) = await fetch_novel_index_page(tab, id)
-    except:
-        await browser.stop()
-        raise
     
     # Obtain last updated timestamp
     # First build a list of all timestamps from all episodes

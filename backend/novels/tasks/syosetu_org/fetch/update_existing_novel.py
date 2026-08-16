@@ -16,8 +16,6 @@ from rq.job import JobStatus
 from novels.tasks.syosetu_org.fetch.fetch_embedded_images import fetch_embedded_images
 from novels.tasks.syosetu_org.fetch.fetch_episode_contents import fetch_episode_contents
 from novels.tasks.syosetu_org.fetch.fetch_novel_index_page import fetch_novel_index_page
-from novels.tasks.syosetu_org.fetch.fetch_novel_details_page import fetch_novel_details_page
-from novels.tasks.syosetu_org.process.generate_epub import generate_epub_syosetu_org
 from novels.tasks.syosetu_org.types import DraftChapter, DraftEpisode
 from novels.utils.append_to_job_log import append_to_job_log
 from novels.utils.enqueue_generate_epub_with_metadata import enqueue_generate_epub_task_async
@@ -90,33 +88,31 @@ async def _update_novel(id: int, allow_delete: bool):
     
     # Fetch novel details 
     new_last_fetch_timestamp = datetime.datetime.now()
+    # try:
+    #     novel_details = await fetch_novel_details_page(tab, id)
+    # except:
+    #     await browser.stop()
+    #     raise
+    
     try:
-        novel_details = await fetch_novel_details_page(tab, id)
+        (title, author, tags, draft_chapters, draft_episodes) = await fetch_novel_index_page(tab, id)
     except:
         await browser.stop()
         raise
-    
-    db_novel.last_fetch_timestamp = new_last_fetch_timestamp
     
     # Update the draft copy novel with newest info
+    db_novel.last_fetch_timestamp = new_last_fetch_timestamp
     novel_details_changed = False
-    if db_novel.title != novel_details.title:
-       db_novel.title = novel_details.title
-       novel_details_changed = True
-    if db_novel.author != novel_details.author:
-       db_novel.author = novel_details.author
-       novel_details_changed = True
-    if db_novel.status != novel_details.status:
-        db_novel.status = novel_details.status
+    if db_novel.title != title:
+        db_novel.title = title
+        novel_details_changed = True
+    if db_novel.author != author:
+        db_novel.author = author
+        novel_details_changed = True
+    if set(db_novel.tags) != set(tags):
+        db_novel.tags = tags
         novel_details_changed = True
     append_to_job_log(f"小説情報の更新完了")
-    
-    # Fetch novel index page to obtain a list of draft chapters
-    try:
-        (draft_chapters, draft_episodes) = await fetch_novel_index_page(tab, id)
-    except:
-        await browser.stop()
-        raise
     
     # Update newest change timestamp on novel
     all_updated_timestamps = [e["last_updated"] for e in draft_episodes if e["last_updated"] is not None]

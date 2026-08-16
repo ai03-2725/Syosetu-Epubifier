@@ -5,7 +5,7 @@ from novels.models import Chapter, Episode, Novel, UploadedImage, EpubFile
 # Register your models here.
 @admin.register(Novel)
 class NovelAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'last_fetch_timestamp', 'last_updated_timestamp', 'status')
+    list_display = ('title', 'author', 'last_fetch_timestamp', 'last_updated_timestamp')
 
 @admin.register(Chapter)
 class ChapterAdmin(admin.ModelAdmin):
