@@ -4,12 +4,15 @@
 // Digest: 633004cd6f29a14f71510e3182f39ce2eeed58b9bfc5d3a8fecf7082205f22f7
 // Last modified on: 2026-08-17T05:44:37.904179
 
+// Manually modified to switch tags to a list of strings
+
 export interface Novel {
   id: any;
   title: string;
   author: string;
   source: string;
-  tags: any;
+  // tags: any;
+  tags: string[],
   lastUpdatedTimestamp: Date;
   lastFetchTimestamp: Date;
   frozen: boolean;

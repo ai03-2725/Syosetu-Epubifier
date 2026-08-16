@@ -1,6 +1,5 @@
 import { BACKEND_IP } from "..";
 import type { Novel } from "../types/novel";
-import { novelBackendStatusToJaStr } from "../util/NovelStatusTools";
 
 
 export async function getAllNovels(): Promise<Novel[]> {
@@ -14,10 +13,15 @@ export async function getAllNovels(): Promise<Novel[]> {
           title: entry.title,
           author: entry.author,
           source: entry.source,
-          status: novelBackendStatusToJaStr(entry.status),
+          tags: entry.tags as string[],
           lastUpdatedTimestamp: new Date(entry.last_updated_timestamp),
           lastFetchTimestamp: new Date(entry.last_fetch_timestamp),
-          frozen: entry.frozen
+          frozen: entry.frozen, 
+
+          postprocessReduceBlankLines: entry.postprocess_reduce_blank_lines,
+          postprocessIndentSeparators: entry.postprocess_indent_separators,
+          postprocessReplaceHrs: entry.postprocess_replace_hrs, 
+          postprocessAutoIndent: entry.postprocess_auto_indent, 
         }
       })
     })
@@ -37,14 +41,15 @@ export async function toggleNovelFrozenState(novel: Novel): Promise<Novel> {
         title: entry.title,
         author: entry.author,
         source: entry.source,
-        status: novelBackendStatusToJaStr(entry.status),
+        tags: entry.tags as string[],
         lastUpdatedTimestamp: new Date(entry.last_updated_timestamp),
         lastFetchTimestamp: new Date(entry.last_fetch_timestamp),
         frozen: entry.frozen,
 
         postprocessReduceBlankLines: entry.postprocess_reduce_blank_lines,
         postprocessIndentSeparators: entry.postprocess_indent_separators,
-        postprocessReplaceHrs: entry.postprocess_replace_hrs
+        postprocessReplaceHrs: entry.postprocess_replace_hrs, 
+        postprocessAutoIndent: entry.postprocess_auto_indent, 
       }
     })
 }

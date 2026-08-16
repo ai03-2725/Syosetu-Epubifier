@@ -10,8 +10,6 @@ import '@globus.studio/oat-table/dist/oat-table.min.css';
 import '@globus.studio/oat-table/dist/oat-table.min.js';
 import { BACKEND_IP } from '..';
 import type { Novel } from '../types/novel';
-import { NovelStatusBadge } from '../component/NovelStatusBadge';
-import { novelBackendStatusToJaStr, novelStatusToSortableInt } from '../util/NovelStatusTools';
 import type { EpubFile } from '../types/epub-file';
 
 import IconBook from '~icons/ph/book-open'
@@ -218,7 +216,7 @@ function NovelsPage() {
                     <th scope="col" data-sort>タイトル</th>
                     <th scope="col" data-sort>作者</th>
                     <th scope="col" data-sort>URL</th>
-                    <th scope="col" data-sort="number">連載状況</th>
+                    <th scope="col" data-sort="number">タグ</th>
                     <th scope="col" data-sort="date">取得日</th>
                     <th scope="col" data-sort="date">更新日</th>
                     <th scope="col">更新</th>
@@ -241,9 +239,13 @@ function NovelsPage() {
                         </menu>
                         
                       </td>
-                      <td data-sort-value={novelStatusToSortableInt(novel.status)}>
-                        <NovelStatusBadge status={novel.status} />
-                        {novel.frozen && <><span> </span><span class="badge" data-variant="warning">凍結中</span></>}
+                      <td data-sort-value={JSON.stringify(novel.tags)}>
+                        {novel.frozen && <><span class="badge" data-variant="warning">凍結中</span></>}
+                        <For each={novel.tags}>
+                          {((tag) => (
+                            <span class="badge" data-variant="secondary">{tag}</span>
+                          ))}
+                        </For>
                       </td>
                       <td><time datetime={novel.lastFetchTimestamp.toISOString()}>{novel.lastFetchTimestamp.toLocaleDateString()}<br/>{novel.lastFetchTimestamp.toLocaleTimeString()}</time></td>
                       <td><time datetime={novel.lastUpdatedTimestamp.toISOString()}>{novel.lastUpdatedTimestamp.toLocaleDateString()}<br/>{novel.lastUpdatedTimestamp.toLocaleTimeString()}</time></td>
