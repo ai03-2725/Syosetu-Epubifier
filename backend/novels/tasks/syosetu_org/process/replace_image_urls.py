@@ -17,23 +17,22 @@ from pydoll.constants import PageLoadState
 from novels.utils.append_to_job_log import append_to_job_log
 
 
-async def replace_image_urls(episode_text: str) -> tuple[str, list[UploadedImage]] | None:
+async def replace_image_urls(soup: BeautifulSoup) -> list[UploadedImage] | None:
     """
-    Replace the URLs of each embedded image with a local href for embedding into epubs (i.e. src="Images/filename.ext")
-    Returns a tuple of (modified text, [list of UploadedImages involved]) if changed, or None if unchanged
+    Replace embedded image links (links marked 押絵) with img tags within the provided BS4 object for embedding images directly into the epub pages
+    Returns a list of UploadedImages involved if any image links were swapped, or None if unchanged
     """
     
     # Get list of embedded images
-    urls_list = find_embedded_images(episode_text)
+    urls_list = find_embedded_images(soup)
     if len(urls_list) == 0:
-        append_to_job_log("置き換える画像タグはありません")
+        # append_to_job_log("置き換える画像タグはありません")
         return None
     
     # If images exist, look up each in the db
     # All should exist given that they're fetched along with the novel
-    append_to_job_log("置き換える画像タグを発見しました")
+    # append_to_job_log("置き換える画像タグを発見しました")
     
-    edited_text = episode_text
     involved_images: list[UploadedImage] = []
     
     for image_url in urls_list:
@@ -44,15 +43,13 @@ async def replace_image_urls(episode_text: str) -> tuple[str, list[UploadedImage
             raise Exception("replace_image_urls: データベースに画像ファイルが存在しません")
             
         filename = db_image.image_file.name
-        new_path = "Images/" + filename
-        soup = BeautifulSoup(edited_text, "html.parser")
-        tags = soup.find_all(lambda t: t.name == 'a' and t.get('href') == image_url)
-        new_tag = soup.new_tag("img")
-        new_tag["src"] = new_path
-        for tag in tags:
-            tag.replace_with(new_tag)
-        edited_text = str(soup)
+        new_path = "Images/" + filename # Images should be copied to the Images/ directory within the epub
+        a_tags = soup.find_all(lambda t: t.name == 'a' and t.get('href') == image_url)
+        for a_tag in a_tags:
+            new_tag = soup.new_tag("img")
+            new_tag["src"] = new_path
+            a_tag.replace_with(new_tag)
         involved_images.append(db_image)
     
-    append_to_job_log(f"画像リンクを入れ替えました")
-    return edited_text, involved_images
+    # append_to_job_log(f"画像リンクを入れ替えました")
+    return involved_images

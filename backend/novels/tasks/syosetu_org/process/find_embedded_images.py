@@ -11,7 +11,7 @@ from snowflake import SnowflakeGenerator
 from url_normalize import url_normalize
 
     
-def find_embedded_images(episode_text: str) -> list[str]:
+def find_embedded_images(soup: BeautifulSoup) -> list[str]:
     """
     Looks for embedded images in the provided episode text
     """
@@ -20,7 +20,7 @@ def find_embedded_images(episode_text: str) -> list[str]:
     # Look for embedded image URLs in the HTML contents using beautifulsoup
     # print(episode_text)
     # soup = BeautifulSoup(episode_text, "html.parser").find_all(lambda t: t.name == "a" and t.text == "【挿絵表示】")
-    soup = BeautifulSoup(episode_text, "html.parser").find_all("a", string="【挿絵表示】")        
-    found_image_urls: list[str] = [a.get("href") for a in soup if a.get("href") is not None]
+    a_tags = soup.find_all("a", string="【挿絵表示】")        
+    found_image_urls: list[str] = [a.get("href") for a in a_tags if a.get("href") is not None]
     return found_image_urls
     

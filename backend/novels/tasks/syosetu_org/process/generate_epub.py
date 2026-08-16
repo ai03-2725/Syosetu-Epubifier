@@ -4,6 +4,7 @@
 import asyncio
 import io
 import mimetypes
+from bs4 import BeautifulSoup
 from django.conf import settings
 
 from django_rq import job
@@ -14,9 +15,10 @@ from url_normalize import url_normalize
 from novels.models import EpubFile, Novel
 from novels.postprocess_common.cleanup_empty_lines import cleanup_empty_lines
 from novels.postprocess_common.indent_separators import indent_separators
+from novels.postprocess_common.indent_text import indent_text
 from novels.postprocess_common.replace_hrs import replace_hrs
 from novels.tasks.syosetu_org.process.cleanup_html import cleanup_html
-from novels.tasks.syosetu_org.process.prettify_html import prettify_html
+from novels.tasks.syosetu_org.process.convert_maegaki import unwrap_maegaki_atogaki
 from novels.tasks.syosetu_org.process.replace_image_urls import replace_image_urls
 from novels.tasks.syosetu_org.process.source_to_id import source_to_id
 from novels.utils.append_to_job_log import append_to_job_log
@@ -96,36 +98,41 @@ async def _generate_epub(novel_id: int):
         book.add_item(ebook_episode)
         
         # Add title heading to beginning of episode
-        processed_html = episode.contents
-        processed_html = f'<h2>{episode.episode_title}</h2></div><p><br/></p><p><br/></p>' + processed_html
+        html_string = episode.contents
+        html_string = f'<h2>{episode.episode_title}</h2></div><p><br/></p><p><br/></p>' + html_string
         if episode.chapter.chapter_number > 0:
-            processed_html = f'<small>{episode.chapter.chapter_title}</small>' + processed_html
+            html_string = f'<small>{episode.chapter.chapter_title}</small>' + html_string
+            
+        # Convert to BS4 object for processing
+        soup = BeautifulSoup(html_string, 'html.parser', preserve_whitespace_tags=["p", "span", "h1", "h2", "h3", "h4", "h5", "h6"])
+        
+        # Convert maegaki/atogaki sections (if exists) to honbun format for consistent post-processing
+        unwrap_maegaki_atogaki(soup)
         
         # Post-processing based on novel settings
         if db_novel.postprocess_reduce_blank_lines:
-            processed_html = cleanup_empty_lines(processed_html)
+            cleanup_empty_lines(soup)
         if db_novel.postprocess_indent_separators:
-            processed_html = indent_separators(processed_html)
+            indent_separators(soup)
         if db_novel.postprocess_replace_hrs:
-            processed_html = replace_hrs(processed_html)
+            replace_hrs(soup)
+        if db_novel.postprocess_auto_indent:
+            indent_text(soup)
             
         # Cleanup the raw content HTML
-        processed_html = cleanup_html(processed_html)
+        cleanup_html(soup)
         
         append_to_job_log(f"{str(episode.episode_number)}話の内容を確認中")
         
         # Handle embedded images
-        embedded_images = await replace_image_urls(processed_html)
-        if embedded_images is not None:
-            new_content, involved_images = embedded_images
-            ebook_episode.content = prettify_html(new_content)
-            for image in involved_images:
+        found_embedded_images = await replace_image_urls(soup)
+        ebook_episode.content = soup.prettify()
+        if found_embedded_images is not None:
+            for image in found_embedded_images:
                 image_content = image.image_file.open('rb').read()
                 media_type, _ = mimetypes.guess_type(image.image_file.path)
                 ebook_image = epub.EpubImage(uid=f"image_{image.image_file.name}", file_name=f"Images/{image.image_file.name}", content=image_content, media_type=media_type) 
                 book.add_item(ebook_image)
-        else:
-            ebook_episode.content = prettify_html(processed_html)
             
         # Add episode to spine
         book.spine.append(ebook_episode)

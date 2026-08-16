@@ -28,10 +28,11 @@ pillow==12.3.0
 propcache==0.5.2
 pydantic==2.13.4
 pydantic_core==2.46.4
-pydoll-python @ git+https://github.com/autoscrape-labs/pydoll.git@1b5b25ff146fb1daf2894b65acac50d9438b4f70
+pydoll-python==2.24.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 redis==8.1.0
+regex==2026.7.19
 rq==2.10.0
 six==1.17.0
 snowflake-id==1.0.2

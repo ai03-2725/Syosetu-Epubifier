@@ -22,6 +22,7 @@ class Novel(models.Model):
     postprocess_reduce_blank_lines = models.BooleanField(default=True, db_comment="Whether or not to reduce the amount of blank newlines")
     postprocess_indent_separators = models.BooleanField(default=True, db_comment="Whether or not to indent lines which appear to be separators (lines comprised of just symbols)")
     postprocess_replace_hrs = models.BooleanField(default=True, db_comment="Whether or not to replace <hr/> tags with less intrusive alternatives")
+    postprocess_auto_indent = models.BooleanField(default=True, db_comment="Whether or not to indent all lines which start with text (and aren't already indented)")
     
 class Chapter(models.Model):
     # Groups of episodes

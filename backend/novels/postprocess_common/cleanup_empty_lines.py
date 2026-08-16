@@ -17,8 +17,7 @@ import math
 from bs4 import BeautifulSoup, Tag
 from novels.postprocess_common.util import is_symbol_divider, is_hr_divider
 
-def cleanup_empty_lines(text: str):
-    soup = BeautifulSoup(text, "html.parser")
+def cleanup_empty_lines(soup: BeautifulSoup):
     
     current_group: list[Tag] = []
     
@@ -47,4 +46,5 @@ def cleanup_empty_lines(text: str):
                 # Reset blanks list
                 current_group = []
                 
-    return str(soup)
+    # return soup
+    # Parameter soup should be modified in place
