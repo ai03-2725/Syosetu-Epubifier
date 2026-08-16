@@ -55,8 +55,8 @@
 
 # テスト環境
 
-アプリ稼働：MacOS 26、AlmaLinux 10
-出力ePub閲覧：MacOS Booksアプリ、Android（Onyx Boox）上KOReaderアプリ
+- アプリ稼働：MacOS 26、AlmaLinux 10  
+- 出力ePub閲覧：MacOS Booksアプリ、Android（Onyx Boox）上KOReaderアプリ  
 
 
 # バグリスト
