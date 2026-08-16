@@ -111,12 +111,16 @@ function NovelsPage() {
   }))
 
   const generateEpubMutation = useMutation(() => ({
-    mutationFn: async (novelId: number) => {await awaitEpubGen(novelId)},
+    mutationFn: async (novelIds: number[] | true) => {return await awaitEpubGen(novelIds)},
     onError: (e) => {
       (window as any).ot.toast(e.message, 'ePub出力に失敗しました', { variant: 'warning', placement: 'bottom-right', duration: 10 * 1000 });
       console.error(e)
     },
-    onSuccess: () => {
+    onSuccess: (errors: string[]) => {
+      // If any errors, toast
+      for (const error of errors) {
+        (window as any).ot.toast(error, 'ePub出力に失敗しました', { variant: 'warning', placement: 'bottom-right', duration: 10 * 1000 });
+      }
       // Invalidate the cache to trigger refetching
       queryClient.invalidateQueries({ queryKey: ['novels'] });
       setCurrentlyPendingNovel(null);
@@ -205,6 +209,13 @@ function NovelsPage() {
                   disabled={(novelsQuery.data?.length || 0) <= 0}
                   onClick={() => enqueueNovelFetchMutation.mutate(true)}
                 >全ての小説を更新</button>
+              </div>
+              <div class="vstack" style="height: 100%;">
+                <button 
+                  data-variant="secondary"
+                  disabled={(novelsQuery.data?.length || 0) <= 0 || generateEpubMutation.isPending}
+                  onClick={() => generateEpubMutation.mutate(true)}
+                >全てのePubを再出力</button>
               </div>
             </div>
 
@@ -296,7 +307,7 @@ function NovelsPage() {
                           </button>
                           <menu popover id={`epub-actions-${novel.id}`}>
                             <button role="menuitem" class="ghost" data-spinner="small"
-                              onClick={() => generateEpubMutation.mutate(novel.id)} 
+                              onClick={() => generateEpubMutation.mutate([novel.id])} 
                               aria-busy={generateEpubMutation.isPending} disabled={generateEpubMutation.isPending}
                             >ePubファイルを{epubFilesQuery.data?.find(entry => entry.novel == novel.id) ? "際" : undefined}生成</button>
                             {epubFilesQuery.data?.find(entry => entry.novel == novel.id) && 

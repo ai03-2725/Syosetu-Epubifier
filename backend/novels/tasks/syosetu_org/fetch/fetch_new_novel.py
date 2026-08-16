@@ -163,7 +163,7 @@ async def _fetch_new_novel(id: int):
     await browser.stop()
     
     # Enqueue an epub gneeration
-    await enqueue_generate_epub_task_async(db_novel.id)
+    await enqueue_generate_epub_task_async([db_novel.id])
         
     return 
     

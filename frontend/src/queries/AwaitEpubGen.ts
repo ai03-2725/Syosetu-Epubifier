@@ -1,16 +1,16 @@
 import { BACKEND_IP } from ".."
 import type { JobStatusReturnType } from "../types/rq-job-statuses"
-import { awaitEnqueuedJob } from "./AwaitEnqueuedJobTemplate"
+import { awaitEnqueuedJobs } from "./AwaitEnqueuedJobsTemplate"
 
 
-export const awaitEpubGen = async (novel_id: number) => {
+export const awaitEpubGen = async (novel_ids: number[] | true) => {
   // Use the enqueued job template to await
-  const result = await awaitEnqueuedJob<JobStatusReturnType>(
+  const errors = await awaitEnqueuedJobs(
     BACKEND_IP + '/novel/generate-epub/',
-    { novelId: novel_id },
+    { novelIds: novel_ids },
     BACKEND_IP + '/novel/job-status/',
-    1000
+    500
   )
-  return
+  return errors
 }
 
